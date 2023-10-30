@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="MathCore.Hosting.WPF" Version="0.0.9.11" />
+    <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
   </ItemGroup>
 
 </Project>

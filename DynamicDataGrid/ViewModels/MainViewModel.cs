@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
 using System.Windows.Input;
 using System.Windows.Markup;
 
 using MathCore.WPF.Commands;
 using MathCore.WPF.ViewModels;
+using Ookii.Dialogs.Wpf;
 
 namespace DynamicDataGrid.ViewModels;
 
@@ -60,5 +63,23 @@ public class MainViewModel() : TitledViewModel("Главное окно")
 
     public ICommand AddCommand => _AddCommand ??= Command.New(() => _Files?.Add(new(_NewFileName, _NewFilePath)));
 
+    private Command? _SelectDirectoryCommand;
 
+    public ICommand SelectDirectoryCommand => _SelectDirectoryCommand ??= Command.New(OnSelectDirectoryCommandExecuted);
+
+    private void OnSelectDirectoryCommandExecuted()
+    {
+        var dialog = new VistaFolderBrowserDialog { Multiselect = false };
+        if (!dialog.ShowDialog() == true)
+            return;
+
+        if(!Directory.Exists(dialog.SelectedPath)) return;
+
+        var files = Directory
+            .EnumerateFiles(dialog.SelectedPath, "*.*", SearchOption.AllDirectories)
+            .Select(f => new DataViewModel(Path.GetDirectoryName(f)!, f))
+            .ToObservableCollection();
+
+        Files = files;
+    }
 }

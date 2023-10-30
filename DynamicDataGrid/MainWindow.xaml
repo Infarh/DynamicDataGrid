@@ -12,6 +12,7 @@
         Width="800" Height="450">
     <DockPanel>
         <DockPanel DockPanel.Dock="Top">
+            <Button DockPanel.Dock="Right" Content="DIR" Command="{Binding SelectDirectoryCommand}"/>
             <Button DockPanel.Dock="Right" Content="Remove" Command="{Binding RemoveCommand}" CommandParameter="{Binding SelectedFile}"/>
             <Button DockPanel.Dock="Right" Content="Add" Command="{Binding AddCommand}"/>
             <UniformGrid Rows="1">

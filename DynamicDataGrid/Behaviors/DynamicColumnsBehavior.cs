@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -19,9 +20,22 @@ public class DynamicColumnsBehavior : Behavior<DataGrid>
     {
         base.OnAttached();
 
+        var item_source_property = DependencyPropertyDescriptor
+            .FromProperty(
+                ItemsControl.ItemsSourceProperty, 
+                AssociatedType  /* typeof(DataGrid) */);
+
+        item_source_property.AddValueChanged(AssociatedObject, OnItemSourceChanged);
+
         AssociatedObject.SourceUpdated += OnSourceUpdated;
         AssociatedObject.AutoGenerateColumns = false;
         UpdateItemSource(AssociatedObject.ItemsSource);
+    }
+
+    private void OnItemSourceChanged(object? Sender, EventArgs E)
+    {
+        if(Sender is not DataGrid { ItemsSource: { } source}) return;
+        UpdateItemSource(source);
     }
 
     protected override void OnDetaching()
@@ -37,8 +51,10 @@ public class DynamicColumnsBehavior : Behavior<DataGrid>
     {
         if (_LastItemSource is INotifyCollectionChanged last_source)
             last_source.CollectionChanged -= OnSourceCollectionChanged;
+
         if (NewItemSource is INotifyCollectionChanged new_source)
             new_source.CollectionChanged += OnSourceCollectionChanged;
+        
         _LastItemSource = NewItemSource;
 
         RegenerateColumns(NewItemSource as IEnumerable<DataViewModel>);
